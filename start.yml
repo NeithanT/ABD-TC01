@@ -1,9 +1,24 @@
-frontend:
+services:
 
-backend:
+  #frontend: {}
 
-database:
+  #backend: {}
+
+  #database: {}
 
 
-Kubernates:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.0
+    container_name: keycloak
+    command: start-dev --import-realm  #para que keycloak revise el realm antes de arrancar
+    env_file:
+      - keycloak.env
+    ports:
+      - "8080:8080"
 
+    #Monta el realm parque que keycloak lo importe automaticamente
+    #Evita tener que crear el realm manualmente en cada computadora
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
+
+ 
