@@ -11,10 +11,12 @@ services:
     image: quay.io/keycloak/keycloak:26.7.0
     container_name: keycloak
     command: start-dev --import-realm  #para que keycloak revise el realm antes de arrancar
-    env_file:
-      - keycloak.env
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+
     ports:
-      - "8080:8080"
+      - "${KEYCLOAK_PORT}:${KEYCLOAK_INTERNAL_PORT}"  #todo puerto con variable de entorno
 
     #Monta el realm parque que keycloak lo importe automaticamente
     #Evita tener que crear el realm manualmente en cada computadora
