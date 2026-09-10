@@ -1,0 +1,10 @@
+services:
+  frontend:
+
+  backend:
+
+  database:
+
+  keycloak:
+
+  Kubernates:
