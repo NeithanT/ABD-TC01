@@ -5,22 +5,22 @@ services:
   #backend:
 
   database: 
-    image: postgres:17-alpine
-    
+    image: postgres:17-alpine 
     container_name: mi-postgresito
     environment:
-      - POSTGRES_USER: ${POSTGRES_USER}
-      - POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      - POSTGRES_DB: ${POSTGRES_DB}
-    #volumes:
-      ## mas tarde
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database:/docker-entrypoint-initdb.d:r
     ports:
       - "${DB_PORT}:${POSTGRE_INTERNAL_PORT}"
     
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 1m10s
-      timeout: 30ss
+      timeout: 30s
       retries: 5
       start_period: 30s
 
@@ -30,5 +30,7 @@ services:
   #Kubernates:
 
 
-#volumes:
+volumes:
+  pgdata:
+
   
