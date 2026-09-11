@@ -25,7 +25,30 @@ services:
       start_period: 30s
 
 
-  #keycloak:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.0
+    container_name: keycloak
+    command: start-dev --import-realm  #para que keycloak revise el realm antes de arrancar
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_HEALTH_ENABLED: "true"
+      KC_HTTP_MANAGEMENT_PORT: ${KEYCLOAK_MANAGEMENT_PORT} 
+
+    ports:
+      - "${KEYCLOAK_PORT}:${KEYCLOAK_INTERNAL_PORT}"  #todo puerto con variable de entorno
+
+    #Monta el realm parque que keycloak lo importe automaticamente
+    #Evita tener que crear el realm manualmente en cada computadora
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
+
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/$${KC_HTTP_MANAGEMENT_PORT} && echo -e 'GET /health/ready HTTP/1.1\r\nhost: localhost\r\n\r\n' >&3 && timeout 2 cat <&3 | grep -q '\"status\": \"UP\"'"]
+      interval: 40s
+      timeout: 20s
+      retries: 5
+      start_period: 30s
 
   #Kubernates:
 
