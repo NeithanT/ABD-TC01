@@ -1,0 +1,11 @@
+FROM node:26.7-alpine3.24
+
+WORKDIR /app
+
+COPY ./*.json /app/
+
+RUN npm install
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev", "--", "--host"]

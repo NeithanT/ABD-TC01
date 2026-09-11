@@ -1,0 +1,23 @@
+services:
+  frontend:
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile.dev
+    container_name: react_dev
+    ports:
+      - "${REACT_PORT}:${REACT_INTERNAL_PORT}"
+    volumes:
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/README.md:/app/README.md
+      - ./frontend/public:/app/public
+      - ./frontend/src:/app/src
+
+
+
+  #backend:
+
+  #database:
+
+  #keycloak:
+
+  #Kubernates:
