@@ -1,5 +1,5 @@
 import express, { type Express, type Request, type Response } from 'express';
-import healthRouter from './routes/health.js';
+import healthRouter from './routes/health.ts';
 
 const app: Express = express();
 
