@@ -1,0 +1,9 @@
+node_modules/
+.git
+.gitignore
+.github
+.md
+.env
+.env.example
+dist/
+build/
