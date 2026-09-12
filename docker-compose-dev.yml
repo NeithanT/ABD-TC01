@@ -8,11 +8,10 @@ services:
       - "${REACT_PORT}:${REACT_INTERNAL_PORT}"
     volumes:
       - ./frontend/index.html:/app/index.html
-      - ./frontend/README.md:/app/README.md
       - ./frontend/public:/app/public
       - ./frontend/src:/app/src
-
-
+    enviroments:
+      - VITE_BACKEND_ROUTE: localhost:${BACKEND_PORT}
 
   #backend:
 
