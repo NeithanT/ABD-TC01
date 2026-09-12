@@ -11,6 +11,9 @@ services:
       - ./frontend/README.md:/app/README.md
       - ./frontend/public:/app/public
       - ./frontend/src:/app/src
+    networks:
+      - public_net
+
 
   backend:
     build: 
@@ -22,6 +25,14 @@ services:
     volumes:
       - ./backend/app.ts:/app/app.ts
       - ./backend/routes/:/app/routes/
+    networks:
+      - private_net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 30s
 
 
   database: 
@@ -73,3 +84,11 @@ services:
 
 volumes:
   pgdata:
+
+networks:
+  public_net:
+    driver: bridge
+  private_net:
+    driver: bridge
+    internal: true
+ 
