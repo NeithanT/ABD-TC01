@@ -27,11 +27,63 @@ function App() {
     cord_y: number;
   };
 
+  const enum TipoError {
+    ERROR,
+    WARN,
+    INFO
+  };
+
+  type Error = {
+    mensajeError: string;
+    tipoDeError: TipoError;
+  };
+
   // los 3 api endpoints
   // TODO: Los diferentes response status
 
   useEffect(() => {
 
+    // Las dos llamadas que no piden permiso de jwt
+    // 200 OK, OTRO ERROR DEL SERVER
+    const readEstrellas = async() => {
+      try {
+        const respuesta = await fetch(RUTA_ESTANDAR + DICCIONARIO_RUTAS.star);
+        if (!respuesta.ok) {
+          throw new Error(`Error leyendo estrellas: ${respuesta.status}`)
+        }
+
+        const json = await respuesta.json();
+        return json;
+
+      } catch (error) {
+        console.error("Fallo Fetch: ", error.message);
+        const nuevoError: Error = { mensajeError: "Error Leyendo Estrellas", tipoDeError: TipoError.ERROR };
+        return nuevoError;
+      }
+    }
+
+    // 200 EXISTE, 404 NO EXISTE,
+    const readEstrella = async(idEstrella: number) => {
+      try {
+        const respuesta = await fetch(RUTA_ESTANDAR + DICCIONARIO_RUTAS.star + `/${idEstrella}`);
+
+        if (!respuesta.ok) {
+          throw new Error(`Error leyendo estrella ${idEstrella}: ${respuesta.status}`)
+        }
+
+        const json = await respuesta.json();
+        return json;
+
+      } catch (error) {
+        console.error("Fallo Fetch: ", error.message);
+        const nuevoError: Error = { mensajeError: "Error Leyendo Estrella", tipoDeError: TipoError.ERROR };
+        return nuevoError;
+      }
+    }
+
+
+    // Rutas que si usan JWT
+    // 201 CREADO, 400 INCOMPLETO
     const createEstrella = async (nuevaEstrella: NuevaEstrella) => {
       try {
         const respuesta = await fetch(RUTA_ESTANDAR + DICCIONARIO_RUTAS.star, {
@@ -48,62 +100,31 @@ function App() {
           })
         });
 
-        if(!respuesta.ok) {
-          throw new Error(`Response status: ${respuesta.status}`);
-        }
-
-      } catch {
-
-      }
-    }
-
-    const readEstrellas = async() => {
-      try {
-        const respuesta = await fetch(RUTA_ESTANDAR + DICCIONARIO_RUTAS.star);
-        if (!respuesta.ok) {
-          throw new Error(`Response status: ${respuesta.status}`)
+        if(respuesta.status == 400) {
+          throw new Error(`Error en createEstrella, cuerpo incompleto: ${respuesta.status}`);
+        } else if (!respuesta.ok) {
+          throw new Error(`Error en createEstrella: ${respuesta.status}`);
         }
 
         const json = await respuesta.json();
         console.log(json);
 
-      } catch {
-
+      } catch (error) {
+        console.error("Fallo Fetch: ", error.message);
+        const nuevoError: Error = { mensajeError: "Error Creando Estrella", tipoDeError: TipoError.ERROR };
+        return nuevoError;
       }
     }
 
-    const readEstrella = async(idEstrella: number) => {
-      try {
-        const respuesta = await fetch(RUTA_ESTANDAR + DICCIONARIO_RUTAS.star, {
-          headers: {
-            'Content-type': 'application/json'
-          },
-          body: JSON.stringify({
-            id: idEstrella
-          })
-        });
-
-        if (!respuesta.ok) {
-          throw new Error(`Response status: ${respuesta.status}`)
-        }
-
-        const json = await respuesta.json();
-        console.log(json);
-
-      } catch {
-
-      }
-    }
-
+    // 200 FUNCIONO + VERSION ACTUALIZADA, 404 NO EXISTE, 400 INVALIDO
     const updateEstrella = async (idEstrella: number, nuevaEstrella: NuevaEstrella) => {
       try {
-        const respuesta = await fetch(RUTA_ESTANDAR + DICCIONARIO_RUTAS.star, {
+        const respuesta = await fetch(RUTA_ESTANDAR + DICCIONARIO_RUTAS.star + `/${idEstrella}`, {
           method: 'PUT',
           headers: {
             'Contect-type': 'application/json'
           },
           body: JSON.stringify({
-            id: idEstrella,
             nombre: nuevaEstrella.nombre,
             masa: nuevaEstrella.masa,
             color: nuevaEstrella.color,
@@ -112,35 +133,47 @@ function App() {
           })
         });
 
+        switch (respuesta.status) {
+          case 404:
+            throw new Error(`Error en updateEstrella, no existe id ${idEstrella}: ${respuesta.status}`);
+          case 400:
+            throw new Error(`Error en updateEstrella, cuerpo invalido: ${respuesta.status}`)
+        }
         if (!respuesta.ok) {
           throw new Error(`Response status: ${respuesta.status}`);
         }
 
-      } catch {
+        const json = await respuesta.json();
+        return json;
 
+      } catch (error) {
+        console.error("Fallo Fetch: ", error.message);
+        const nuevoError: Error = { mensajeError: "Error Actualizando Estrella", tipoDeError: TipoError.ERROR };
+        return nuevoError;
       }
     }
 
+    // 204 FUNCIONO, 404 NO EXISTE
     const deleteEstrella = async (idEstrella: number) => {
       try {
-        const respuesta = await fetch(RUTA_ESTANDAR + DICCIONARIO_RUTAS.star, {
-          method: 'DELETE',
-          headers: {
-            'Content-type': 'application/json'
-          },
-          body: {
-            id: idEstrella
-          }
+        const respuesta = await fetch(RUTA_ESTANDAR + DICCIONARIO_RUTAS.star + `/${idEstrella}`, {
+          method: 'DELETE'
         });
 
-        if (!respuesta.ok) {
-          throw new Error(`Response status: ${respuesta.status}`);
+        if (respuesta.status == 404) {
+          throw new Error(`Error borrando estrella, con id ${idEstrella}: ${respuesta.status}`);
         }
 
-      } catch {
+        const json = respuesta.json();
+        return json;
 
+      } catch (error) {
+        console.error("Fallo Fetch: ", error.message);
+        const nuevoError: Error = { mensajeError: "Error Borrando Estrella", tipoDeError: TipoError.ERROR };
+        return nuevoError;
       }
     }
+
   })
 
   const total_estrellas = 10;

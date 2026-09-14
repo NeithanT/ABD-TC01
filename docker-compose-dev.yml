@@ -6,12 +6,13 @@ services:
     container_name: react_dev
     ports:
       - "${REACT_PORT}:${REACT_INTERNAL_PORT}"
+    environment:
+      VITE_BACKEND_ROUTE: localhost:${BACKEND_PORT}
     volumes:
       - ./frontend/index.html:/app/index.html
       - ./frontend/public:/app/public
       - ./frontend/src:/app/src
-    enviroments:
-      - VITE_BACKEND_ROUTE: localhost:${BACKEND_PORT}
+
 
   #backend:
 
