@@ -1,5 +1,6 @@
 import express, { type Express, type Request, type Response } from 'express';
-import healthRouter from './routes/health.js';
+import healthRouter from './routes/health.ts';
+import readyRouter from './routes/ready.ts';
 
 const app: Express = express();
 
@@ -8,5 +9,6 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.use('/health', healthRouter);
+app.use('/ready', readyRouter);
 
 app.listen(3000);
