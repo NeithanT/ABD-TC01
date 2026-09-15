@@ -6,14 +6,14 @@ services:
     container_name: react_dev
     ports:
       - "${REACT_PORT}:${REACT_INTERNAL_PORT}"
+    environment:
+      VITE_BACKEND_ROUTE: localhost:${BACKEND_PORT}
     volumes:
       - ./frontend/index.html:/app/index.html
-      - ./frontend/README.md:/app/README.md
       - ./frontend/public:/app/public
       - ./frontend/src:/app/src
     networks:
       - public_net
-
 
   backend:
     build: 
@@ -45,7 +45,7 @@ services:
 
   database: 
     image: postgres:17-alpine 
-    container_name: mi-postgresito
+    container_name: postgre_dev
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -66,7 +66,7 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.7.0
-    container_name: keycloak
+    container_name: keycloak_dev
     command: start-dev --import-realm  #para que keycloak revise el realm antes de arrancar
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME}
