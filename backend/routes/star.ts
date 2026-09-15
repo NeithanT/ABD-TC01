@@ -28,6 +28,10 @@ starRouter.get("/", async(req: Request, res: Response) => {
         valores.push(masa);
         condiciones.push(`masa = $${valores.length}`);
     }
+    if (usuario !== undefined) {
+    valores.push(usuario);
+    condiciones.push(`usuario_creador = $${valores.length}`);
+  }
 
     const where = condiciones.length > 0 ? `WHERE ${condiciones.join(" AND ")}` : "";
     
