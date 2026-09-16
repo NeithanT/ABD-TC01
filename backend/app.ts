@@ -14,4 +14,6 @@ app.use('/health', healthRouter);
 app.use('/ready', readyRouter);
 app.use('/star',starRouter);
 
-app.listen(process.env.BACKEND_INTERNAL_PORT);
+export default app;
+
+//app.listen(process.env.BACKEND_INTERNAL_PORT);
