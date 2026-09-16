@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS estrellas (
     masa REAL NOT NULL,
     color INT NOT NULL CHECK (color < 16777216),
     cord_x REAL,
-    cord_y REAL
+    cord_y REAL,
+    UNIQUE (usuario_creador, nombre)
 );
 

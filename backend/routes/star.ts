@@ -93,6 +93,67 @@ starRouter.get("/", async(req: Request, res: Response) => {
     }
 })
 
+//=====================================
+// POST:
+// POST /star   body: CrearEstrellaDTO
+// 201 creado, //body 404 not found
+// para quien lo vea : falta validacion del radio ya estoy cansado jefe, alguien que migre esto a un ORM 
+//==========================================
+starRouter.post("/", async(req: Request, res: Response) => {
+    const { nombre, color, masa, cord_x, cord_y, usuario_creador } =req.body;
+
+    //validaciones:
+    // validaciones.nombre
+    if (typeof nombre !== "string" || nombre.trim() === "") {
+        return res.status(404).json({ error: "nombre inválido"});
+    }
+
+    // validaciones.color
+    if (typeof color !== "number" || !Number.isInteger(color) || color < 0 || color >= 16777216 ) {
+        return res.status(404).json({ error: "color inválido"});
+    }
+
+    // validaciones.masa
+    if (typeof masa !== "number" || Number.isNaN(masa)){
+        return res.status(404).json({ error: "masa inválida"});
+    }
+
+    // validaciones.cord_x
+    if (typeof cord_x !== "number" || Number.isNaN(cord_x)){
+        return res.status(404).json({ error: "cord_x inválida"});
+    }
+
+    // validaciones.cord_y
+    if (typeof cord_y !== "number" || Number.isNaN(cord_y)){
+        return res.status(404).json({ error: "cord_y inválida"});
+    }
+
+    // validaciones.usuario_creador
+    if (typeof usuario_creador !== "string" || usuario_creador.trim() === "") {
+        return res.status(404).json({ error: "usuario inválido"});
+    }
+
+    const nuevaEstrella : CrearEstrellaDTO = { nombre, color, masa, cord_x, cord_y, usuario_creador };
+    // insertar a la base de datos
+    try {
+        const resultado = await conexionBD.query(
+            `INSERT INTO estrellas (nombre, color, masa, cord_x, cord_y, usuario_creador)
+            VALUES($1, $2, $3, $4, $5, $6)
+            RETURNING *`,
+            [nuevaEstrella.nombre,nuevaEstrella.color, nuevaEstrella.masa, 
+            nuevaEstrella.cord_x, nuevaEstrella.cord_y, nuevaEstrella.usuario_creador ]
+        );
+        res.status(201).json(resultado.rows[0]);
+    } catch (error: any) {
+        if (error.code === "23505") {
+        return res.status(400).json({ error: "ya existe una estrella con ese nombre para este usuario" });
+        }
+        console.error("Error en POST /star:", error);
+        res.status(500).json({ error: "Error interno" });
+    }
+});
+
+
 //===============================
 //DELETE：
 //DELETE /star/:id  
@@ -118,6 +179,8 @@ starRouter.delete("/:id", async (req: Request, res: Response) => {
     res.status(500).json({ error: "Error interno" });
   }
 });
+
+
 
 export default starRouter;
 
