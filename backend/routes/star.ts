@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import conexionBD from "../db.ts";
 import type { CrearEstrellaDTO, FiltroEstrellaDTO } from "../dtos.ts";
+import { error } from "node:console";
 
 const PARAMS_PERMITIDOS = ["color", "masa", "usuario", "nombre"];
 const starRouter = Router();
@@ -96,7 +97,7 @@ starRouter.get("/", async(req: Request, res: Response) => {
 //=====================================
 // POST:
 // POST /star   body: CrearEstrellaDTO
-// 201 creado, //body 404 not found
+// 201 creado, //body 400 not found
 // para quien lo vea : falta validacion del radio ya estoy cansado jefe, alguien que migre esto a un ORM 
 //==========================================
 starRouter.post("/", async(req: Request, res: Response) => {
@@ -105,32 +106,32 @@ starRouter.post("/", async(req: Request, res: Response) => {
     //validaciones:
     // validaciones.nombre
     if (typeof nombre !== "string" || nombre.trim() === "") {
-        return res.status(404).json({ error: "nombre inválido"});
+        return res.status(400).json({ error: "nombre inválido"});
     }
 
     // validaciones.color
     if (typeof color !== "number" || !Number.isInteger(color) || color < 0 || color >= 16777216 ) {
-        return res.status(404).json({ error: "color inválido"});
+        return res.status(400).json({ error: "color inválido"});
     }
 
     // validaciones.masa
     if (typeof masa !== "number" || Number.isNaN(masa)){
-        return res.status(404).json({ error: "masa inválida"});
+        return res.status(400).json({ error: "masa inválida"});
     }
 
     // validaciones.cord_x
     if (typeof cord_x !== "number" || Number.isNaN(cord_x)){
-        return res.status(404).json({ error: "cord_x inválida"});
+        return res.status(400).json({ error: "cord_x inválida"});
     }
 
     // validaciones.cord_y
     if (typeof cord_y !== "number" || Number.isNaN(cord_y)){
-        return res.status(404).json({ error: "cord_y inválida"});
+        return res.status(400).json({ error: "cord_y inválida"});
     }
 
     // validaciones.usuario_creador
     if (typeof usuario_creador !== "string" || usuario_creador.trim() === "") {
-        return res.status(404).json({ error: "usuario inválido"});
+        return res.status(400).json({ error: "usuario inválido"});
     }
 
     const nuevaEstrella : CrearEstrellaDTO = { nombre, color, masa, cord_x, cord_y, usuario_creador };
@@ -153,6 +154,66 @@ starRouter.post("/", async(req: Request, res: Response) => {
     }
 });
 
+//=======================================
+// PUT:
+// /star/:id body(igual que post menos usuario_creador)
+//200 ok actualizado, 400 cuerpo invalido, 404 no existe 
+//===============================================================
+starRouter.put("/:id", async (req: Request, res: Response) => {
+    const { id } = req.params;
+     // validaciones
+    if (typeof id !== "string" || !/^\d+$/.test(id)) {
+        return res.status(400).json({ error: "id inválido" });
+    }
+
+    const { nombre, color, masa, cord_x, cord_y } = req.body;
+    //validaciones:
+    // validaciones.nombre
+    if (typeof nombre !== "string" || nombre.trim() === "") {
+        return res.status(400).json({ error: "nombre inválido"});
+    }
+
+    // validaciones.color
+    if (typeof color !== "number" || !Number.isInteger(color) || color < 0 || color >= 16777216 ) {
+        return res.status(400).json({ error: "color inválido"});
+    }
+
+    // validaciones.masa
+    if (typeof masa !== "number" || Number.isNaN(masa)){
+        return res.status(400).json({ error: "masa inválida"});
+    }
+
+    // validaciones.cord_x
+    if (typeof cord_x !== "number" || Number.isNaN(cord_x)){
+        return res.status(400).json({ error: "cord_x inválida"});
+    }
+
+    // validaciones.cord_y
+    if (typeof cord_y !== "number" || Number.isNaN(cord_y)){
+        return res.status(400).json({ error: "cord_y inválida"});
+    }
+
+    // update 
+    try {
+        const resultado = await conexionBD.query(
+            `UPDATE estrellas
+             SET nombre = $1, color = $2, masa = $3, cord_x = $4, cord_y = $5
+             WHERE id = $6
+             RETURNING *`,
+            [nombre, color, masa, cord_x, cord_y, id]
+        );
+
+        if (resultado.rowCount === 0) {
+            return res.status(404).json({
+                error: "id no encontrado"
+            });
+        }
+        res.status(200).json(resultado.rows[0]);
+    } catch (error) {
+        console.error("Error en PUT /star:", error);
+        res.status(500).json({ error: "Error interno" });
+    }
+});
 
 //===============================
 //DELETE：
@@ -160,7 +221,8 @@ starRouter.post("/", async(req: Request, res: Response) => {
 //===============================
 starRouter.delete("/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
-
+ 
+   // validaciones
   if (typeof id !== "string" || !/^\d+$/.test(id)) {
     return res.status(400).json({ error: "id inválido" });
   }
@@ -180,11 +242,7 @@ starRouter.delete("/:id", async (req: Request, res: Response) => {
   }
 });
 
-
-
 export default starRouter;
-
-
 
 //body 404 not found
 //body  400 incompleto 
