@@ -1,9 +1,8 @@
 import { Router, type Request, type Response } from "express";
 import conexionBD from "../db.ts";
 import type { CrearEstrellaDTO, FiltroEstrellaDTO } from "../dtos.ts";
-import { error } from "node:console";
-import { markAsUntransferable } from "node:worker_threads";
 
+const PARAMS_PERMITIDOS = ["color", "masa", "usuario", "nombre"];
 const starRouter = Router();
 //Metodos http
 
@@ -16,6 +15,16 @@ const starRouter = Router();
 //GET /star?nombre=pluton => filtra por nombre 
 //===============================
 starRouter.get("/", async(req: Request, res: Response) => {
+    // para manejar parametros sucios
+    const parametrosRecibidos = Object.keys(req.query);
+    const parametrosInvalidos = parametrosRecibidos.filter(p => !PARAMS_PERMITIDOS.includes(p));
+
+    if (parametrosInvalidos.length > 0) {
+        return res.status(400).json({
+            error: `parámetros no reconocidos ${parametrosInvalidos.join(", ")}`
+        })
+    }
+
     const {color, masa, usuario, nombre} = req.query;
     const filtro: FiltroEstrellaDTO = {};
     // WHERE dinamicamente segun que filtros vengan
@@ -88,26 +97,27 @@ starRouter.get("/", async(req: Request, res: Response) => {
 //DELETE：
 //DELETE /star/:id  
 //===============================
-starRouter.delete("/:id", async(req: Request, res: Response) => {
-     const {id} = req.params;
+starRouter.delete("/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
 
-     const condiciones = [`$${id}`]
-     const valores = [id];
-     try {
-        const resultado = await conexionBD.query(
-            `DELETE FROM estrellas 
-             WHERE id = ${condiciones}`,
-             valores
-        );
-        if (resultado.rowCount === 0) {
-            return res.status(404).json({ error: "id no encontrado o inválido" });
-        }
-        res.status(204).send();
-     } catch (error) {
-        console.error("Error en DELETE /star:", error);
-        res.status(500).json({ error: "Error interno"});
+  if (typeof id !== "string" || !/^\d+$/.test(id)) {
+    return res.status(400).json({ error: "id inválido" });
+  }
+
+  try {
+    const resultado = await conexionBD.query(
+      `DELETE FROM estrellas WHERE id = $1`,
+      [id]
+    );
+    if (resultado.rowCount === 0) {
+      return res.status(404).json({ error: "id no encontrado" });
     }
-})
+    res.status(204).send();
+  } catch (error) {
+    console.error("Error en DELETE /star:", error);
+    res.status(500).json({ error: "Error interno" });
+  }
+});
 
 export default starRouter;
 

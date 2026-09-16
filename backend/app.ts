@@ -9,8 +9,9 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Hello World!');
 });
 
+app.use(express.json());
 app.use('/health', healthRouter);
 app.use('/ready', readyRouter);
 app.use('/star',starRouter);
 
-app.listen(3000);
+app.listen(process.env.BACKEND_INTERNAL_PORT);
