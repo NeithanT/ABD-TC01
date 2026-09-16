@@ -198,54 +198,27 @@ function App() {
 
     estrellas.push(nuevaEstrella);
   }
-  // return (
-  // <>
-  //   {estrellas.map((estrella, index) => (
-  //     <div
-  //       key={index}
-  //       className='estrella'
-  //       style={{
-  //         width: estrella.masa,
-  //         height: estrella.masa,
+  
+  return (
+  <>
+    {estrellas.map((estrella, index) => (
+      <div
+        key={index}
+        className='estrella'
+        style={{
+          width: estrella.masa,
+          height: estrella.masa,
 
-  //         left: estrella.cord_x,
-  //         top: estrella.cord_y
-  //       }}>
+          left: estrella.cord_x,
+          top: estrella.cord_y
+        }}>
 
-  //     </div>
-  //   ))
+      </div>
+    ))
 
-  //   }
-  // </>
-  // )
-
-  // TODO hacer un hook para calcular la posición, para reajustar resize de screen
-  switch (auth.activeNavigator) {
-          case "signinSilent":
-              return <div>Signing you in...</div>;
-          case "signoutRedirect":
-              return <div>Signing you out...</div>;
-      }
-
-      if (auth.isLoading) {
-          return <div>Loading...</div>;
-      }
-
-      if (auth.error) {
-          return <div>Oops... {auth.error.source} caused {auth.error.message}</div>;
-      }
-
-      if (auth.isAuthenticated) {
-          return (
-          <div>
-              Hello {auth.user?.profile.sub}{" "}
-              <button onClick={() => void auth.removeUser()}>Log out</button>
-          </div>
-          );
-      }
-
-      return <button onClick={() => void auth.signinRedirect()}>Log in</button>;
-
+    }
+  </>
+  )
 }
 
 export default App
