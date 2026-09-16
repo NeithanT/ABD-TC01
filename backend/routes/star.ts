@@ -1,7 +1,6 @@
 import { Router, type Request, type Response } from "express";
 import conexionBD from "../db.ts";
 import type { CrearEstrellaDTO, FiltroEstrellaDTO } from "../dtos.ts";
-import { error } from "node:console";
 
 const PARAMS_PERMITIDOS = ["color", "masa", "usuario", "nombre"];
 const starRouter = Router();
@@ -92,6 +91,32 @@ starRouter.get("/", async(req: Request, res: Response) => {
         console.error("Error en GET /star:", error);
         res.status(500).json({ error: "Error interno"});
     }
+})
+
+//====================
+// GET: pero con id 
+//======================
+starRouter.get("/:id", async(req: Request, res: Response) => {
+    const { id } = req.params;
+
+    //validar id 
+    if (typeof id !== "string" || !/^\d+$/.test(id)) {
+        return res.status(400).json({ error: "id inválido" });
+    }
+
+    // consulta
+    try {
+        const resultado = await conexionBD.query(     
+            `SELECT * FROM estrellas 
+            WHERE id = $1`,
+            [id]      
+        );
+        res.status(200).json(resultado.rows);
+    } catch (error) {
+        console.error("Error en GET /star:", error);
+        res.status(500).json({ error: "Error interno"});
+    }
+    
 })
 
 //=====================================
