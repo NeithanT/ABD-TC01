@@ -8,7 +8,7 @@ RUN npm install
 
 EXPOSE 3000
 
-CMD ["node", "--env-file=.env",  "app.ts"]
+CMD ["node", "--env-file=.env",  "server.ts"]
 
 
 
