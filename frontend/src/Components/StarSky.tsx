@@ -1,7 +1,4 @@
-import { useEffect, useState } from 'react'
-import { useAuth } from 'react-oidc-context';
 import type { Estrella, NuevaEstrella, TipoError, Error } from '../types'
-import { readEstrellas, readEstrella, createEstrella, updateEstrella, deleteEstrella } from '../Api';
 import '../App.css'
 
 function StarSky() {
