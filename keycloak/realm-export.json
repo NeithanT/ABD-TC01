@@ -1,4 +1,20 @@
 {
+  "roles": {
+    "realm": [
+      {
+        "name": "user",
+        "description": "Puede crear, actualizar y borrar estrellas"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "name": "usuarios-estrellas",
+      "path": "/usuarios-estrellas",
+      "realmRoles": ["user"]
+    }
+  ],
+  "defaultGroups":["/usuarios-estrellas"],
   "realm": "${REALM_NAME}",
   "enabled": true,
   "defaultSignatureAlgorithm": "RS256",
