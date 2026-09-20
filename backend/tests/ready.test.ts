@@ -24,4 +24,14 @@ describe('/ready', () => {
         expect(respuesta.body).toEqual({ status: 'READY' });
 
     });
+
+    //Prueba de error en la base de datos
+    it('Responde 503 y NO READY cuando la BD falla', async () => {
+
+        queryMock.mockRejectedValueOnce(new Error('Fallo de Conexion a la BD'));
+        const respuesta = await request(app).get('/ready');
+        expect(respuesta.status).toBe(503);
+        expect(respuesta.body).toEqual({ status: 'NO READY' });
+
+    });
 });
