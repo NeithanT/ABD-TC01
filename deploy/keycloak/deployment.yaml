@@ -30,8 +30,8 @@ spec:
               cpu: 100m
               memory: 512Mi
             limits:
-              cpu: 300m
-              memory: 2048Mi
+              cpu: 800m
+              memory: 4096Mi
           ports:
             - containerPort: 8080
               name: keycloak-port
