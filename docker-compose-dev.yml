@@ -67,8 +67,7 @@ services:
     ports:
       - "${DB_PORT}:${POSTGRE_INTERNAL_PORT}"
     networks:
-      #- private_net
-      - public_net
+      - private_net
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
@@ -79,7 +78,7 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:26.7.0
     container_name: keycloak_dev
-    command: start-dev --import-realm  #para que keycloak revise el realm antes de arrancar
+    command: start-dev --import-realm  # para que keycloak revise el realm antes de arrancar
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}

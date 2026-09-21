@@ -10,6 +10,6 @@ const RUTAS = {
   home: '/'
 }
 
-const TIMEOUT_MAX = import.meta.env.TIMEOUT_TIME * 1000;
+const TIMEOUT_MAX = import.meta.env.VITE_TIMEOUT_TIME * 1000;
 
 export { RUTA_ESTANDAR, RUTAS_API, RUTAS, TIMEOUT_MAX };
