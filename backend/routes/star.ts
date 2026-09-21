@@ -156,7 +156,7 @@ starRouter.post("/", requiereToken, requiereRol("user"), async (req: Request, re
     }
 
     const usuario_creador = req.usuario!.username;
-    
+
     const nuevaEstrella : CrearEstrellaDTO = { nombre, color, masa, cord_x, cord_y, usuario_creador };
     // insertar a la base de datos
     try {
@@ -182,7 +182,7 @@ starRouter.post("/", requiereToken, requiereRol("user"), async (req: Request, re
 // /star/:id body(igual que post menos usuario_creador)
 //200 ok actualizado, 400 cuerpo invalido, 404 no existe 
 //===============================================================
-starRouter.put("/:id", async (req: Request, res: Response) => {
+starRouter.put("/:id", requiereToken, requiereRol("user"), async (req: Request, res: Response) => {
     const { id } = req.params;
      // validaciones
     if (typeof id !== "string" || !/^\d+$/.test(id)) {
@@ -242,7 +242,7 @@ starRouter.put("/:id", async (req: Request, res: Response) => {
 //DELETE：
 //DELETE /star/:id  
 //===============================
-starRouter.delete("/:id", async (req: Request, res: Response) => {
+starRouter.delete("/:id", requiereToken, requiereRol("user"), async (req: Request, res: Response) => {
   const { id } = req.params;
  
    // validaciones
