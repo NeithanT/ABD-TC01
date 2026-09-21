@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import conexionBD from "../db.ts";
 import type { CrearEstrellaDTO, FiltroEstrellaDTO } from "../dtos.ts";
+import { requiereToken, requiereRol } from "../middleware/auth.ts";
 
 const PARAMS_PERMITIDOS = ["color", "masa", "usuario", "nombre"];
 const starRouter = Router();
@@ -106,17 +107,20 @@ starRouter.get("/:id", async(req: Request, res: Response) => {
 
     // consulta
     try {
-        const resultado = await conexionBD.query(     
-            `SELECT * FROM estrellas 
+        const resultado = await conexionBD.query(
+            `SELECT * FROM estrellas
             WHERE id = $1`,
-            [id]      
+            [id]
         );
-        res.status(200).json(resultado.rows);
+        if (resultado.rows.length === 0) {
+            return res.status(404).json({ error: "id no encontrado" });
+        }
+        res.status(200).json(resultado.rows[0]);
     } catch (error) {
         console.error("Error en GET /star:", error);
         res.status(500).json({ error: "Error interno"});
     }
-    
+
 })
 
 //=====================================
@@ -125,8 +129,8 @@ starRouter.get("/:id", async(req: Request, res: Response) => {
 // 201 creado, //body 400 not found
 // para quien lo vea : falta validacion del radio ya estoy cansado jefe, alguien que migre esto a un ORM 
 //==========================================
-starRouter.post("/", async(req: Request, res: Response) => {
-    const { nombre, color, masa, cord_x, cord_y, usuario_creador } =req.body;
+starRouter.post("/", requiereToken, requiereRol("user"), async (req: Request, res: Response) => {
+    const { nombre, color, masa, cord_x, cord_y } =req.body;
 
     //validaciones:
     // validaciones.nombre
@@ -154,10 +158,7 @@ starRouter.post("/", async(req: Request, res: Response) => {
         return res.status(400).json({ error: "cord_y inválida"});
     }
 
-    // validaciones.usuario_creador
-    if (typeof usuario_creador !== "string" || usuario_creador.trim() === "") {
-        return res.status(400).json({ error: "usuario inválido"});
-    }
+    const usuario_creador = req.usuario!.username;
 
     const nuevaEstrella : CrearEstrellaDTO = { nombre, color, masa, cord_x, cord_y, usuario_creador };
     // insertar a la base de datos
@@ -184,7 +185,7 @@ starRouter.post("/", async(req: Request, res: Response) => {
 // /star/:id body(igual que post menos usuario_creador)
 //200 ok actualizado, 400 cuerpo invalido, 404 no existe 
 //===============================================================
-starRouter.put("/:id", async (req: Request, res: Response) => {
+starRouter.put("/:id", requiereToken, requiereRol("user"), async (req: Request, res: Response) => {
     const { id } = req.params;
      // validaciones
     if (typeof id !== "string" || !/^\d+$/.test(id)) {
@@ -218,8 +219,20 @@ starRouter.put("/:id", async (req: Request, res: Response) => {
         return res.status(400).json({ error: "cord_y inválida"});
     }
 
-    // update 
+    // update
     try {
+        const existente = await conexionBD.query(
+            `SELECT usuario_creador FROM estrellas WHERE id = $1`,
+            [id]
+        );
+
+        if (existente.rowCount === 0) {
+            return res.status(404).json({ error: "id no encontrado" });
+        }
+        if (existente.rows[0].usuario_creador !== req.usuario!.username) {
+            return res.status(403).json({ error: "no sos el dueño de esta estrella" });
+        }
+
         const resultado = await conexionBD.query(
             `UPDATE estrellas
              SET nombre = $1, color = $2, masa = $3, cord_x = $4, cord_y = $5
@@ -228,11 +241,6 @@ starRouter.put("/:id", async (req: Request, res: Response) => {
             [nombre, color, masa, cord_x, cord_y, id]
         );
 
-        if (resultado.rowCount === 0) {
-            return res.status(404).json({
-                error: "id no encontrado"
-            });
-        }
         res.status(200).json(resultado.rows[0]);
     } catch (error) {
         console.error("Error en PUT /star:", error);
@@ -244,7 +252,7 @@ starRouter.put("/:id", async (req: Request, res: Response) => {
 //DELETE：
 //DELETE /star/:id  
 //===============================
-starRouter.delete("/:id", async (req: Request, res: Response) => {
+starRouter.delete("/:id", requiereToken, requiereRol("user"), async (req: Request, res: Response) => {
   const { id } = req.params;
  
    // validaciones
@@ -253,13 +261,19 @@ starRouter.delete("/:id", async (req: Request, res: Response) => {
   }
 
   try {
-    const resultado = await conexionBD.query(
-      `DELETE FROM estrellas WHERE id = $1`,
+    const existente = await conexionBD.query(
+      `SELECT usuario_creador FROM estrellas WHERE id = $1`,
       [id]
     );
-    if (resultado.rowCount === 0) {
+
+    if (existente.rowCount === 0) {
       return res.status(404).json({ error: "id no encontrado" });
     }
+    if (existente.rows[0].usuario_creador !== req.usuario!.username) {
+      return res.status(403).json({ error: "no sos el dueño de esta estrella" });
+    }
+
+    await conexionBD.query(`DELETE FROM estrellas WHERE id = $1`, [id]);
     res.status(204).send();
   } catch (error) {
     console.error("Error en DELETE /star:", error);

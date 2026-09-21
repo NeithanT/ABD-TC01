@@ -24,6 +24,10 @@ services:
       dockerfile: Dockerfile.dev
     container_name: express_backend_dev
     environment:
+      REALM_NAME: ${REALM_NAME}
+      KEYCLOAK_INTERNAL_URL: http://keycloak:${KEYCLOAK_INTERNAL_PORT}
+      KEYCLOAK_ISSUER: ${BASE_URI}:${KEYCLOAK_PORT}/realms/${REALM_NAME}
+
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
@@ -34,8 +38,11 @@ services:
     volumes:
       - ./backend/app.ts:/app/app.ts
       - ./backend/routes/:/app/routes/
+      - ./backend/middleware/:/app/middleware/
       - ./backend/db.ts:/app/db.ts
       - ./.env:/app/.env
+      - ./backend/server.ts:/app/server.ts
+      - ./backend.dtos.ts:/app/dtos.ts
     networks:
       - private_net
       - public_net
