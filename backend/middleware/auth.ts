@@ -1,9 +1,17 @@
 import { createRemoteJWKSet, jwtVerify } from "jose";
 import type { Request, Response, NextFunction } from "express";
 
-const JWKS = createRemoteJWKSet(
-    new URL(`${process.env.KEYCLOAK_INTERNAL_URL}/realms/${process.env.REALM_NAME}/protocol/openid-connect/certs`)
-);
+// no se arma al importar el archivo, solo la primera vez que hace falta validar un token de verdad
+let jwks: ReturnType<typeof createRemoteJWKSet> | null = null;
+
+function obtenerJwks() {
+    if (!jwks) {
+        jwks = createRemoteJWKSet(
+            new URL(`${process.env.KEYCLOAK_INTERNAL_URL}/realms/${process.env.REALM_NAME}/protocol/openid-connect/certs`)
+        );
+    }
+    return jwks;
+}
 
 export interface UsuarioAutenticado {
     id: string;
@@ -32,7 +40,7 @@ export async function requiereToken(req: Request, res: Response, next: NextFunct
   try {
     // el issuer tiene que ser el mismo que usa el frontend para pedir el token,
     // no la url interna de docker (esa es solo para buscar las llaves)
-    const { payload } = await jwtVerify(token, JWKS, {
+    const { payload } = await jwtVerify(token, obtenerJwks(), {
       issuer: process.env.KEYCLOAK_ISSUER,
     });
 
