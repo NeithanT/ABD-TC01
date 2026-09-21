@@ -107,17 +107,20 @@ starRouter.get("/:id", async(req: Request, res: Response) => {
 
     // consulta
     try {
-        const resultado = await conexionBD.query(     
-            `SELECT * FROM estrellas 
+        const resultado = await conexionBD.query(
+            `SELECT * FROM estrellas
             WHERE id = $1`,
-            [id]      
+            [id]
         );
-        res.status(200).json(resultado.rows);
+        if (resultado.rows.length === 0) {
+            return res.status(404).json({ error: "id no encontrado" });
+        }
+        res.status(200).json(resultado.rows[0]);
     } catch (error) {
         console.error("Error en GET /star:", error);
         res.status(500).json({ error: "Error interno"});
     }
-    
+
 })
 
 //=====================================
@@ -216,8 +219,20 @@ starRouter.put("/:id", requiereToken, requiereRol("user"), async (req: Request, 
         return res.status(400).json({ error: "cord_y inválida"});
     }
 
-    // update 
+    // update
     try {
+        const existente = await conexionBD.query(
+            `SELECT usuario_creador FROM estrellas WHERE id = $1`,
+            [id]
+        );
+
+        if (existente.rowCount === 0) {
+            return res.status(404).json({ error: "id no encontrado" });
+        }
+        if (existente.rows[0].usuario_creador !== req.usuario!.username) {
+            return res.status(403).json({ error: "no sos el dueño de esta estrella" });
+        }
+
         const resultado = await conexionBD.query(
             `UPDATE estrellas
              SET nombre = $1, color = $2, masa = $3, cord_x = $4, cord_y = $5
@@ -226,11 +241,6 @@ starRouter.put("/:id", requiereToken, requiereRol("user"), async (req: Request, 
             [nombre, color, masa, cord_x, cord_y, id]
         );
 
-        if (resultado.rowCount === 0) {
-            return res.status(404).json({
-                error: "id no encontrado"
-            });
-        }
         res.status(200).json(resultado.rows[0]);
     } catch (error) {
         console.error("Error en PUT /star:", error);
@@ -251,13 +261,19 @@ starRouter.delete("/:id", requiereToken, requiereRol("user"), async (req: Reques
   }
 
   try {
-    const resultado = await conexionBD.query(
-      `DELETE FROM estrellas WHERE id = $1`,
+    const existente = await conexionBD.query(
+      `SELECT usuario_creador FROM estrellas WHERE id = $1`,
       [id]
     );
-    if (resultado.rowCount === 0) {
+
+    if (existente.rowCount === 0) {
       return res.status(404).json({ error: "id no encontrado" });
     }
+    if (existente.rows[0].usuario_creador !== req.usuario!.username) {
+      return res.status(403).json({ error: "no sos el dueño de esta estrella" });
+    }
+
+    await conexionBD.query(`DELETE FROM estrellas WHERE id = $1`, [id]);
     res.status(204).send();
   } catch (error) {
     console.error("Error en DELETE /star:", error);
