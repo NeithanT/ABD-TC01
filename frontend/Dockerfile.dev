@@ -2,9 +2,11 @@ FROM node:26.7-alpine3.24
 
 WORKDIR /app
 
-COPY ./*.json /app/
+COPY package*.json ./
 
 RUN npm install
+
+COPY . .
 
 EXPOSE 5173
 
