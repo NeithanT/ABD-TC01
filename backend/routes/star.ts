@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import conexionBD from "../db.ts";
 import type { CrearEstrellaDTO, FiltroEstrellaDTO } from "../dtos.ts";
+import { requiereToken, requiereRol } from "../middleware/auth.ts";
 
 const PARAMS_PERMITIDOS = ["color", "masa", "usuario", "nombre"];
 const starRouter = Router();
@@ -125,8 +126,8 @@ starRouter.get("/:id", async(req: Request, res: Response) => {
 // 201 creado, //body 400 not found
 // para quien lo vea : falta validacion del radio ya estoy cansado jefe, alguien que migre esto a un ORM 
 //==========================================
-starRouter.post("/", async(req: Request, res: Response) => {
-    const { nombre, color, masa, cord_x, cord_y, usuario_creador } =req.body;
+starRouter.post("/", requiereToken, requiereRol("user"), async (req: Request, res: Response) => {
+    const { nombre, color, masa, cord_x, cord_y } =req.body;
 
     //validaciones:
     // validaciones.nombre
@@ -154,11 +155,8 @@ starRouter.post("/", async(req: Request, res: Response) => {
         return res.status(400).json({ error: "cord_y inválida"});
     }
 
-    // validaciones.usuario_creador
-    if (typeof usuario_creador !== "string" || usuario_creador.trim() === "") {
-        return res.status(400).json({ error: "usuario inválido"});
-    }
-
+    const usuario_creador = req.usuario!.username;
+    
     const nuevaEstrella : CrearEstrellaDTO = { nombre, color, masa, cord_x, cord_y, usuario_creador };
     // insertar a la base de datos
     try {

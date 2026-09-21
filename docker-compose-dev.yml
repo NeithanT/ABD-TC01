@@ -38,6 +38,7 @@ services:
     volumes:
       - ./backend/app.ts:/app/app.ts
       - ./backend/routes/:/app/routes/
+      - ./backend/middleware/:/app/middleware/
       - ./backend/db.ts:/app/db.ts
       - ./.env:/app/.env
       - ./backend/server.ts:/app/server.ts
