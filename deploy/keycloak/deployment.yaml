@@ -57,3 +57,4 @@ spec:
           volumeMounts:
             - name: kc-config
               mountPath: /opt/keycloak/data/import/
+          
