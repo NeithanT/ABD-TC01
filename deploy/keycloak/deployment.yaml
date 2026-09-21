@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  labels:
+    app.kubernetes.io/name: keycloak
+    app: sistema-estrellas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+      env: dev
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: keycloak
+        app: keycloak
+        env: dev
+    spec:
+      volumes:
+        - name: kc-config
+          configMap:
+            name: realm-config
+      containers:
+        - name: keycloak
+          image: quay.io/keycloak/keycloak:26.7.0
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 300m
+              memory: 2048Mi
+          ports:
+            - containerPort: 8080
+              name: keycloak-port
+          envFrom:
+            - configMapRef:
+                name: app-env
+          env:
+            - name: KC_BOOTSTRAP_ADMIN_USERNAME
+              value: $(KEYCLOAK_ADMIN_USERNAME)
+            - name: KC_BOOTSTRAP_ADMIN_PASSWORD
+              value: $(KEYCLOAK_ADMIN_PASSWORD)
+            - name: KC_HEALTH_ENABLED
+              value: "true"
+            - name: KC_HTTP_MANAGEMENT_PORT
+              value: $(KEYCLOAK_MANAGEMENT_PORT)
+            - name: REALM_NAME
+              value: $(REALM_NAME)
+            - name: CLIENT_ID
+              value: $(CLIENT_ID)
+            - name: BASE_URL
+              value: $(BASE_URI):$(REACT_PORT)
+          args: ["start-dev", "--import-realm"]
+          volumeMounts:
+            - name: kc-config
+              mountPath: /opt/keycloak/data/import/

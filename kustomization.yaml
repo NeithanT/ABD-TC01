@@ -1,7 +1,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - deploy/deployment.yaml
+  - deploy/frontend/deployment.yaml
+  - deploy/frontend/service.yaml
+  - deploy/keycloak/deployment.yaml
+  - deploy/keycloak/service.yaml
 configMapGenerator:
   - name: app-env
     envs:
