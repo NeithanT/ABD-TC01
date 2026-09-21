@@ -5,6 +5,11 @@ resources:
   - deploy/frontend/service.yaml
   - deploy/keycloak/deployment.yaml
   - deploy/keycloak/service.yaml
+  - deploy/backend/deployment.yaml
+  - deploy/backend/service.yaml
+  - deploy/database/deployment.yaml
+  - deploy/database/service.yaml
+
 configMapGenerator:
   - name: app-env
     envs:
@@ -12,3 +17,10 @@ configMapGenerator:
   - name: realm-config
     files:
       - ./keycloak/realm-export.json
+  - name: env-config
+    files:  
+      - .env
+  - name: db-init
+    files:
+      - ./database/init_db.sql
+      
