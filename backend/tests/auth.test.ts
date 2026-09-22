@@ -41,3 +41,32 @@ describe("requiereToken", () => {
     expect(next).not.toHaveBeenCalled();
   });
 });
+
+//Pruebas para la funcion requiereRol
+describe("requiereRol", () => {
+
+  it("responde 403 si el usuario no tiene el rol pedido", () => {
+    //Simula un usuario autenticado pero con un rol diferente
+    const req: any = { usuario: { id: "1", username: "erik", roles: ["otro-rol"] } };
+    const res = resFalso();
+    const next = vi.fn();
+
+    requiereRol("user")(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it("llama a next() si el usuario tiene el rol pedido", () => {
+
+    //Si tiene el rol pedido
+    const req: any = { usuario: { id: "1", username: "erik", roles: ["user"] } };
+    const res = resFalso();
+    const next = vi.fn();
+
+    requiereRol("user")(req, res, next);
+
+    expect(next).toHaveBeenCalled();
+    expect(res.status).not.toHaveBeenCalled();
+  });
+});
