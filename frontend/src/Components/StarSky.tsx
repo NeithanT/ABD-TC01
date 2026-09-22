@@ -1,4 +1,4 @@
-import type { Estrella, NuevaEstrella, TipoError, Error } from '../types'
+import type { NuevaEstrella } from '../types';
 import '../App.css'
 
 function StarSky() {

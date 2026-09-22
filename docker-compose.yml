@@ -1,12 +1,67 @@
 services:
+  frontend:
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile
+      args:
+        VITE_BACKEND_ROUTE: ${BASE_URI}:${BACKEND_PORT}
+        VITE_AUTHORITY: ${BASE_URI}:${KEYCLOAK_PORT}/realms/${REALM_NAME}
+        VITE_CLIENT_ID: ${CLIENT_ID}
+        VITE_TIMEOUT_TIME: ${TIMEOUT_TIME}
+    container_name: react_prod
+    ports:
+      - "${REACT_PORT}:80"
+    environment:
+      VITE_BACKEND_ROUTE: ${BASE_URI}:${BACKEND_PORT}
+      VITE_AUTHORITY: ${BASE_URI}:${KEYCLOAK_PORT}/realms/${REALM_NAME}
+      VITE_CLIENT_ID: ${CLIENT_ID}
+      VITE_TIMEOUT_TIME: ${TIMEOUT_TIME}
+    volumes:
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/public:/app/public
+      - ./frontend/src:/app/src
+    networks:
+      - public_net
 
-  #frontend:
+  backend:
+    build:
+      context: ./backend/
+      dockerfile: Dockerfile
+    container_name: express_backend_prod
+    environment:
+      REALM_NAME: ${REALM_NAME}
+      KEYCLOAK_INTERNAL_URL: http://keycloak:${KEYCLOAK_INTERNAL_PORT}
+      KEYCLOAK_ISSUER: ${BASE_URI}:${KEYCLOAK_PORT}/realms/${REALM_NAME}
 
-  #backend:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      DB_HOST: ${DB_HOST}
+      POSTGRE_INTERNAL_PORT: ${POSTGRE_INTERNAL_PORT}
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_INTERNAL_PORT}"
+    volumes:
+      - ./backend/app.ts:/app/app.ts
+      - ./backend/routes/:/app/routes/
+      - ./backend/middleware/:/app/middleware/
+      - ./backend/db.ts:/app/db.ts
+      - ./.env:/app/.env
+      - ./backend/server.ts:/app/server.ts
+      - ./backend.dtos.ts:/app/dtos.ts
+    networks:
+      - private_net
+      - public_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:${BACKEND_INTERNAL_PORT}/health || exit 1"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 30s
 
-  database: 
-    image: postgres:17-alpine 
-    container_name: mi-postgresito
+
+  database:
+    image: postgres:17-alpine
+    container_name: postgre_prod
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -16,32 +71,34 @@ services:
       - ./database:/docker-entrypoint-initdb.d:ro
     ports:
       - "${DB_PORT}:${POSTGRE_INTERNAL_PORT}"
-    
+    networks:
+      - private_net
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 5s
-      timeout: s
+      interval: 10s
+      timeout: 5s
       retries: 5
       start_period: 30s
 
-
   keycloak:
     image: quay.io/keycloak/keycloak:26.7.0
-    container_name: keycloak
-    command: start-dev --import-realm  #para que keycloak revise el realm antes de arrancar
+    container_name: keycloak_prod
+    command: start-dev --import-realm  # para que keycloak revise el realm antes de arrancar
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       KC_HEALTH_ENABLED: "true"
-      KC_HTTP_MANAGEMENT_PORT: ${KEYCLOAK_MANAGEMENT_PORT} 
-
+      KC_HTTP_MANAGEMENT_PORT: ${KEYCLOAK_MANAGEMENT_PORT}
+      REALM_NAME: ${REALM_NAME}
+      CLIENT_ID: ${CLIENT_ID}
+      BASE_URL: ${BASE_URI}:${REACT_PORT}
     ports:
       - "${KEYCLOAK_PORT}:${KEYCLOAK_INTERNAL_PORT}"  #todo puerto con variable de entorno
 
     #Monta el realm parque que keycloak lo importe automaticamente
     #Evita tener que crear el realm manualmente en cada computadora
     volumes:
-      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
+    - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
 
     healthcheck:
       test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/$${KC_HTTP_MANAGEMENT_PORT} && echo -e 'GET /health/ready HTTP/1.1\r\nhost: localhost\r\n\r\n' >&3 && timeout 2 cat <&3 | grep -q '\"status\": \"UP\"'"]
@@ -49,11 +106,15 @@ services:
       timeout: 20s
       retries: 5
       start_period: 30s
-
-  #Kubernates:
-
+    networks:
+      - public_net
 
 volumes:
   pgdata:
 
-  
+networks:
+  public_net:
+    driver: bridge
+  private_net:
+    driver: bridge
+    internal: true

@@ -1,0 +1,25 @@
+FROM node:26.7 AS builder
+WORKDIR /app
+
+ARG VITE_BACKEND_ROUTE
+ARG VITE_AUTHORITY
+ARG VITE_CLIENT_ID
+ARG VITE_TIMEOUT_TIME
+
+ENV VITE_BACKEND_ROUTE=$VITE_BACKEND_ROUTE
+ENV VITE_AUTHORITY=$VITE_AUTHORITY
+ENV VITE_CLIENT_ID=$VITE_CLIENT_ID
+ENV VITE_TIMEOUT_TIME=$VITE_TIMEOUT_TIME
+
+COPY ./*.json ./
+RUN ["npm", "ci"]
+
+COPY . .
+RUN ["npm", "run", "build"]
+
+FROM nginx:1.31.6-alpine3.24-slim
+WORKDIR /usr/share/nginx/html
+COPY --from=builder /app/dist/ ./
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

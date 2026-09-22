@@ -15,15 +15,18 @@ type NuevaEstrella = {
   cord_y: number;
 };
 
-const enum TipoError {
+enum TipoError {
   ERROR,
   WARN,
   INFO
-};
+}
 
-type Error = {
+type ApiError = {
   mensajeError: string;
   tipoDeError: TipoError;
 };
 
-export type { Estrella, NuevaEstrella, TipoError, Error };
+export { TipoError };
+export type { Estrella, NuevaEstrella, ApiError };
+
+
