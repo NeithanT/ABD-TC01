@@ -88,5 +88,42 @@ describe("GET /star", () => {
 
     expect(respuesta.status).toBe(500);
   });
-
 });
+
+//prueba para GET con id
+
+describe("GET /star/:id", () => {
+
+  it("responde 400 si el id no es numerico", async () => {
+    const respuesta = await request(app).get("/star/abc");
+    expect(respuesta.status).toBe(400);
+  });
+
+  it("responde 400 si el id es negativo", async () => {
+    const respuesta = await request(app).get("/star/-1");
+    expect(respuesta.status).toBe(400);
+  });
+
+  it("responde 404 si la estrella no existe", async () => {
+    
+    //Simula que la bd no encuentra la estrella.
+    (conexionBD.query as any).mockResolvedValueOnce({ rows: [] });
+
+    const respuesta = await request(app).get("/star/999");
+
+    expect(respuesta.status).toBe(404);
+  });
+
+  it("responde 200 con el elemento si existe", async () => {
+    (conexionBD.query as any).mockResolvedValueOnce({
+      rows: [{ id: 1, nombre: "Sol" }],
+    });
+
+    const respuesta = await request(app).get("/star/1");
+
+    expect(respuesta.status).toBe(200);
+    expect(respuesta.body).toEqual({ id: 1, nombre: "Sol" });
+  });
+});
+
+
