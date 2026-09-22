@@ -56,4 +56,37 @@ describe("GET /star", () => {
     expect(respuesta.status).toBe(400);
   });
 
+    it("responde 200 con la lista cuando el filtro es valido", async () => {
+    //Simula que la bd devuelve una estrella.
+    (conexionBD.query as any).mockResolvedValueOnce({
+      rows: [{ id: 1, nombre: "Sol", color: 100 }],
+    });
+
+    const respuesta = await request(app).get("/star?color=100");
+
+    expect(respuesta.status).toBe(200);
+    expect(respuesta.body).toEqual([{ id: 1, nombre: "Sol", color: 100 }]);
+  });
+
+  it("responde 200 con arreglo vacio si el filtro no encuentra nada", async () => {
+
+    //Simula que la bd devuelve un arreglo vacio.
+    (conexionBD.query as any).mockResolvedValueOnce({ rows: [] });
+
+    const respuesta = await request(app).get("/star?color=1");
+
+    expect(respuesta.status).toBe(200);
+    expect(respuesta.body).toEqual([]);
+  });
+
+  it("responde 500 si la base falla", async () => {
+    
+    //Simula que la bd falla.
+    (conexionBD.query as any).mockRejectedValueOnce(new Error("Error en la BD"));
+
+    const respuesta = await request(app).get("/star");
+
+    expect(respuesta.status).toBe(500);
+  });
+
 });
