@@ -248,7 +248,7 @@ describe("PUT /star/:id", () => {
   });
 
   it("responde 200 y actualiza si es el dueño", async () => {
-    
+
     //Consulta 1: verifica al dueno
     //Consulta 2: actualiza la estrella
     (conexionBD.query as any)
@@ -263,6 +263,47 @@ describe("PUT /star/:id", () => {
     expect(respuesta.body.nombre).toBe("Sol actualizado");
   });
 });
+
+//Pruebas para DELETE
+describe("DELETE /star/:id", () => {
+
+  it("responde 400 si el id no es numerico", async () => {
+    const respuesta = await request(app).delete("/star/abc");
+    expect(respuesta.status).toBe(400);
+  });
+
+  it("responde 404 si el id no existe", async () => {
+    (conexionBD.query as any).mockResolvedValueOnce({ rowCount: 0, rows: [] });
+
+    const respuesta = await request(app).delete("/star/999");
+
+    expect(respuesta.status).toBe(404);
+  });
+
+  it("responde 403 si no es el dueño", async () => {
+    (conexionBD.query as any).mockResolvedValueOnce({
+      rowCount: 1,
+      rows: [{ usuario_creador: "otro_usuario" }],
+    });
+
+    const respuesta = await request(app).delete("/star/1");
+
+    expect(respuesta.status).toBe(403);
+  });
+
+  it("responde 204 y borra si es el dueño", async () => {
+    //Primera consulta: verifica el dueño.
+    //Segunda consulta: elimina la estrella.
+    (conexionBD.query as any)
+      .mockResolvedValueOnce({ rowCount: 1, rows: [{ usuario_creador: "erik" }] })
+      .mockResolvedValueOnce({ rowCount: 1 });
+
+    const respuesta = await request(app).delete("/star/1");
+
+    expect(respuesta.status).toBe(204);
+  });
+});
+
 
 
 
