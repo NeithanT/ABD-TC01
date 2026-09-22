@@ -47,7 +47,7 @@ services:
       - ./backend/db.ts:/app/db.ts
       - ./.env:/app/.env
       - ./backend/server.ts:/app/server.ts
-      - ./backend.dtos.ts:/app/dtos.ts
+      - ./backend/dtos.ts:/app/dtos.ts
     networks:
       - private_net
       - public_net

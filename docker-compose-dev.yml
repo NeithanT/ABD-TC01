@@ -15,6 +15,7 @@ services:
       - ./frontend/index.html:/app/index.html
       - ./frontend/public:/app/public
       - ./frontend/src:/app/src
+      - ./frontend/vite.config.ts:/app/vite.config.ts
     networks:
       - public_net
 
@@ -24,6 +25,9 @@ services:
       dockerfile: Dockerfile.dev
     container_name: express_backend_dev
     environment:
+
+      BACKEND_INTERNAL_PORT: ${BACKEND_INTERNAL_PORT}
+
       REALM_NAME: ${REALM_NAME}
       KEYCLOAK_INTERNAL_URL: http://keycloak:${KEYCLOAK_INTERNAL_PORT}
       KEYCLOAK_ISSUER: ${BASE_URI}:${KEYCLOAK_PORT}/realms/${REALM_NAME}
@@ -42,7 +46,7 @@ services:
       - ./backend/db.ts:/app/db.ts
       - ./.env:/app/.env
       - ./backend/server.ts:/app/server.ts
-      - ./backend.dtos.ts:/app/dtos.ts
+      - ./backend/dtos.ts:/app/dtos.ts
     networks:
       - private_net
       - public_net
