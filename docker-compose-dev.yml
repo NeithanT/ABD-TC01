@@ -104,9 +104,6 @@ services:
     networks:
       - public_net
 
-  #Kubernates:
-
-
 volumes:
   pgdata:
 

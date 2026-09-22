@@ -1,4 +1,5 @@
-import type { Estrella, NuevaEstrella, TipoError, Error } from './types';
+import { TipoError } from './types';
+import type { NuevaEstrella, ApiError } from './types';
 import { RUTAS_API, RUTA_ESTANDAR } from './Constants'
 
 // Las dos llamadas que no piden permiso de jwt
@@ -14,8 +15,8 @@ const readEstrellas = async() => {
     return json;
 
   } catch (error) {
-    console.error("Fallo Fetch: ", error.message);
-    const nuevoError: Error = { mensajeError: "Error Leyendo Estrellas", tipoDeError: TipoError.ERROR };
+    console.error("Fallo Fetch: ", error instanceof Error ? error.message : error);
+    const nuevoError: ApiError = { mensajeError: "Error Leyendo Estrellas", tipoDeError: TipoError.ERROR };
     return nuevoError;
   }
 }
@@ -33,8 +34,8 @@ const readEstrella = async(idEstrella: number) => {
     return json;
 
   } catch (error) {
-    console.error("Fallo Fetch: ", error.message);
-    const nuevoError: Error = { mensajeError: "Error Leyendo Estrella", tipoDeError: TipoError.ERROR };
+    console.error("Fallo Fetch: ", error instanceof Error ? error.message : error);
+    const nuevoError: ApiError = { mensajeError: "Error Leyendo Estrella", tipoDeError: TipoError.ERROR };
     return nuevoError;
   }
 }
@@ -68,8 +69,8 @@ const createEstrella = async (nuevaEstrella: NuevaEstrella) => {
     console.log(json);
 
   } catch (error) {
-    console.error("Fallo Fetch: ", error.message);
-    const nuevoError: Error = { mensajeError: "Error Creando Estrella", tipoDeError: TipoError.ERROR };
+    console.error("Fallo Fetch: ", error instanceof Error ? error.message : error);
+    const nuevoError: ApiError = { mensajeError: "Error Creando Estrella", tipoDeError: TipoError.ERROR };
     return nuevoError;
   }
 }
@@ -105,8 +106,8 @@ const updateEstrella = async (idEstrella: number, nuevaEstrella: NuevaEstrella) 
     return json;
 
   } catch (error) {
-    console.error("Fallo Fetch: ", error.message);
-    const nuevoError: Error = { mensajeError: "Error Actualizando Estrella", tipoDeError: TipoError.ERROR };
+    console.error("Fallo Fetch: ", error instanceof Error ? error.message : error);
+    const nuevoError: ApiError = { mensajeError: "Error Actualizando Estrella", tipoDeError: TipoError.ERROR };
     return nuevoError;
   }
 }
@@ -126,8 +127,8 @@ const deleteEstrella = async (idEstrella: number) => {
     return json;
 
   } catch (error) {
-    console.error("Fallo Fetch: ", error.message);
-    const nuevoError: Error = { mensajeError: "Error Borrando Estrella", tipoDeError: TipoError.ERROR };
+    console.error("Fallo Fetch: ", error instanceof Error ? error.message : error);
+    const nuevoError: ApiError = { mensajeError: "Error Borrando Estrella", tipoDeError: TipoError.ERROR };
     return nuevoError;
   }
 }
