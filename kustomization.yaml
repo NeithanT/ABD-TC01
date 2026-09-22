@@ -9,6 +9,7 @@ resources:
   - deploy/backend/service.yaml
   - deploy/database/deployment.yaml
   - deploy/database/service.yaml
+  - deploy/database/pvc.yaml
 
 configMapGenerator:
   - name: app-env

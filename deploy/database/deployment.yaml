@@ -22,6 +22,9 @@ spec:
         - name: db
           configMap: 
             name: db-init
+        - name: database-storage
+          persistentVolumeClaim:
+            claimName: database-pvc
       containers:
         - name: database
           image: postgres:17-alpine
@@ -45,9 +48,15 @@ spec:
               value: $(POSTGRES_PASSWORD)
             - name: POSTGRES_DB
               value: $(POSTGRES_DB)
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
           volumeMounts:
             - name: db
-              mountPath: /docker-entrypoint-initdb.d:ro
+              mountPath: /docker-entrypoint-initdb.d
+              readOnly: true
+            - name: database-storage
+              mountPath: /var/lib/postgresql/data
+  
  
 
 

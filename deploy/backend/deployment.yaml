@@ -18,10 +18,6 @@ spec:
         app: backend
         env: dev
     spec:
-      volumes:
-        - name: env-config
-          configMap:
-            name: env-config
       containers:
         - name: backend
           image: abd-tc01-backend
@@ -43,11 +39,11 @@ spec:
             - name: REALM_NAME
               value: $(REALM_NAME)
             - name: KEYCLOAK_INTERNAL_URL
-              value: http://keycloak:$(KEYCLOAK_INTERNAL_PORT)
+              value: http://keycloak-service:$(KEYCLOAK_INTERNAL_PORT)
             - name: KEYCLOAK_ISSUER
               value: $(BASE_URI):$(KEYCLOAK_PORT)/realms/$(REALM_NAME)
             - name: DB_HOST
-              value: $(DB_HOST)
+              value: database-service
             - name: POSTGRES_USER
               value: $(POSTGRES_USER)
             - name: POSTGRES_PASSWORD
@@ -56,6 +52,4 @@ spec:
               value: $(POSTGRES_DB)
             - name: POSTGRE_INTERNAL_PORT
               value: ${POSTGRE_INTERNAL_PORT}
-          volumeMounts:
-            - name: env-config
-              mountPath: /app/
+
