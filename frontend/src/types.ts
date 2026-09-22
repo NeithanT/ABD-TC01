@@ -5,6 +5,7 @@ type Estrella = {
   color: number;
   cord_x: number;
   cord_y: number;
+  usuario_creador?: string;
 };
 
 type NuevaEstrella = {
