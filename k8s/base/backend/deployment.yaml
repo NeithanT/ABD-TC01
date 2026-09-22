@@ -52,4 +52,6 @@ spec:
               value: $(POSTGRES_DB)
             - name: POSTGRE_INTERNAL_PORT
               value: ${POSTGRE_INTERNAL_PORT}
+            - name: FRONTEND_ORIGIN
+              value: $(BASE_URI):$(REACT_PORT)
 

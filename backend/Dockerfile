@@ -2,10 +2,10 @@ FROM node:26.7-alpine
 
 WORKDIR /app
 
-COPY ./*.json /app/
+COPY . /app/
 
 RUN npm install
 
 EXPOSE 3000
 
-CMD ["node", "--env-file=.env",  "server.ts"]
+CMD ["node", "server.ts"]

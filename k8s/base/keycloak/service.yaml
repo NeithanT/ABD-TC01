@@ -3,6 +3,7 @@ kind: Service
 metadata:
   name: keycloak-service
 spec:
+  type: NodePort
   selector:
     app.kubernetes.io/name: keycloak
   ports:
@@ -10,3 +11,4 @@ spec:
       protocol: TCP
       port: 8080
       targetPort: keycloak-port
+      nodePort: 30082
