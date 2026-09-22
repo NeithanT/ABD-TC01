@@ -160,6 +160,45 @@ describe("POST /star", () => {
 
     expect(respuesta.status).toBe(400);
   });
+
+  //Creacion exitosa
+  it("responde 201 y usa el usuario del token, no del body", async () => {
+
+    //Simula que la bd devuelve la estrella creada.
+    (conexionBD.query as any).mockResolvedValueOnce({
+      rows: [{ id: 5, nombre: "Sirio", usuario_creador: "erik" }],
+    });
+
+    const respuesta = await request(app)
+      .post("/star")
+      .send({ nombre: "Sirio", color: 1, masa: 1, cord_x: 1, cord_y: 1 });
+
+    expect(respuesta.status).toBe(201);
+    expect(respuesta.body.usuario_creador).toBe("erik");
+  });
+
+  //Nombre ya existe
+  it("responde 400 si el nombre ya existe para ese usuario", async () => {
+    //Simula que la bd lanza un error porque el nombre ya existe.
+    (conexionBD.query as any).mockRejectedValueOnce({ code: "23505" });
+
+    const respuesta = await request(app)
+      .post("/star")
+      .send({ nombre: "Sirio", color: 1, masa: 1, cord_x: 1, cord_y: 1 });
+
+    expect(respuesta.status).toBe(400);
+  });
+
+  //Error inesperado
+  it("responde 500 si la base falla por otro motivo", async () => {
+    (conexionBD.query as any).mockRejectedValueOnce(new Error("boom"));
+
+    const respuesta = await request(app)
+      .post("/star")
+      .send({ nombre: "Sirio", color: 1, masa: 1, cord_x: 1, cord_y: 1 });
+
+    expect(respuesta.status).toBe(500);
+  });
 });
 
 
