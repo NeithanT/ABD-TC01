@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => {
   const missing = requiredEnvs.filter((key) => !env[key] && !process.env[key]);
   if (missing.length > 0) {
     throw new Error(
-      `\n❌ [BUILD ERROR] Faltan variables de ambiente:\n ${missing.join('\n   - ')}\n`
+      `\n[BUILD ERROR] Faltan variables de ambiente:\n ${missing.join('\n   - ')}\n`
     );
   }
 
