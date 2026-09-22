@@ -201,4 +201,69 @@ describe("POST /star", () => {
   });
 });
 
+//Pruebas de PUT /star/:id
+describe("PUT /star/:id", () => {
+
+  it("responde 400 si el id no es numerico", async () => {
+    const respuesta = await request(app)
+      .put("/star/abc")
+      .send({ nombre: "Sol", color: 1, masa: 1, cord_x: 1, cord_y: 1 });
+
+    expect(respuesta.status).toBe(400);
+  });
+
+  it("responde 400 si el body es invalido", async () => {
+    const respuesta = await request(app)
+      .put("/star/1")
+      .send({ color: 1, masa: 1, cord_x: 1, cord_y: 1 });
+
+    expect(respuesta.status).toBe(400);
+  });
+
+  it("responde 404 si el id no existe", async () => {
+
+    //Simula que la bd no encuentra la estrella.
+    (conexionBD.query as any).mockResolvedValueOnce({ rowCount: 0, rows: [] });
+
+    const respuesta = await request(app)
+      .put("/star/999")
+      .send({ nombre: "Sol", color: 1, masa: 1, cord_x: 1, cord_y: 1 });
+
+    expect(respuesta.status).toBe(404);
+  });
+
+  it("responde 403 si no es el dueño", async () => {
+
+    //Simua que la estrella existe pero el usuario creador es otro.
+    (conexionBD.query as any).mockResolvedValueOnce({
+      rowCount: 1,
+      rows: [{ usuario_creador: "otro_usuario" }],
+    });
+
+    const respuesta = await request(app)
+      .put("/star/1")
+      .send({ nombre: "Sol", color: 1, masa: 1, cord_x: 1, cord_y: 1 });
+
+    expect(respuesta.status).toBe(403);
+  });
+
+  it("responde 200 y actualiza si es el dueño", async () => {
+    
+    //Consulta 1: verifica al dueno
+    //Consulta 2: actualiza la estrella
+    (conexionBD.query as any)
+      .mockResolvedValueOnce({ rowCount: 1, rows: [{ usuario_creador: "erik" }] })
+      .mockResolvedValueOnce({ rows: [{ id: 1, nombre: "Sol actualizado" }] });
+
+    const respuesta = await request(app)
+      .put("/star/1")
+      .send({ nombre: "Sol actualizado", color: 1, masa: 1, cord_x: 1, cord_y: 1 });
+
+    expect(respuesta.status).toBe(200);
+    expect(respuesta.body.nombre).toBe("Sol actualizado");
+  });
+});
+
+
+
 
