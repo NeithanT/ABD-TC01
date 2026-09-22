@@ -3,6 +3,7 @@ kind: Service
 metadata:
   name: frontend-service
 spec:
+  type: NodePort
   selector:
     app.kubernetes.io/name: frontend
   ports:
@@ -10,3 +11,4 @@ spec:
       protocol: TCP
       port: 5173
       targetPort: frontend-port
+      nodePort: 30080
