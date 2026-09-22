@@ -124,6 +124,42 @@ describe("GET /star/:id", () => {
     expect(respuesta.status).toBe(200);
     expect(respuesta.body).toEqual({ id: 1, nombre: "Sol" });
   });
+
+});
+
+// POST /star pruebas
+describe("POST /star", () => {
+  it("responde 400 si falta el nombre", async () => {
+    const respuesta = await request(app)
+      .post("/star")
+      .send({ color: 1, masa: 1, cord_x: 1, cord_y: 1 });
+
+    expect(respuesta.status).toBe(400);
+  });
+
+  it("responde 400 si color es invalido", async () => {
+    const respuesta = await request(app)
+      .post("/star")
+      .send({ nombre: "Sol", color: "no numero", masa: 1, cord_x: 1, cord_y: 1 });
+
+    expect(respuesta.status).toBe(400);
+  });
+
+  it("responde 400 si masa es invalida", async () => {
+    const respuesta = await request(app)
+      .post("/star")
+      .send({ nombre: "Sol", color: 1, masa: "no numero", cord_x: 1, cord_y: 1 });
+
+    expect(respuesta.status).toBe(400);
+  });
+
+  it("responde 400 si cord_x es invalida", async () => {
+    const respuesta = await request(app)
+      .post("/star")
+      .send({ nombre: "Sol", color: 1, masa: 1, cord_x: "no numero", cord_y: 1 });
+
+    expect(respuesta.status).toBe(400);
+  });
 });
 
 
