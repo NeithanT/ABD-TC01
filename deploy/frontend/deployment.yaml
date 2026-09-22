@@ -30,17 +30,5 @@ spec:
               cpu: 300m
               memory: 2048Mi
           ports:
-            - containerPort: 5173
+            - containerPort: 80
               name: frontend-port
-          envFrom:
-            - configMapRef:
-                name: app-env
-          env:
-            - name: VITE_BACKEND_ROUTE
-              value: $(BASE_URI):$(BACKEND_PORT)
-            - name: VITE_AUTHORITY
-              value: $(BASE_URI):$(KEYCLOAK_PORT)/realms/$(REALM_NAME)
-            - name: VITE_CLIENT_ID
-              value: $(CLIENT_ID)
-            - name: VITE_TIMEOUT_TIME
-              value: $(TIMEOUT_TIME)
