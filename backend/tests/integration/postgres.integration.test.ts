@@ -6,7 +6,10 @@ import conexionBD from "../../db.ts";
 const USUARIO_PRUEBA = "integracion_postgresql";
 
 //obtiene el puerto del backend dentro del contenedor
-const PUERTO = process.env.BACKEND_INTERNAL_PORT ?? "3000";
+const PUERTO = process.env.BACKEND_INTERNAL_PORT;
+if (!PUERTO) {
+  throw new Error ("Falta la variable de entorno BACKEND_INTERNAL_PORT");
+}
 
 //permite hacer solicitudes HTTP al backend que ya esta corriendo
 const api = request(`http://127.0.0.1:${PUERTO}`);
