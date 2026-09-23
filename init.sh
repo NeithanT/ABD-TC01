@@ -2,6 +2,12 @@
 
 set -e
 
+# 0. Preparar archivo .env si no existe
+if [ ! -f .env ] && [ -f .env.example ]; then
+  echo "== Copiando .env.example a .env =="
+  cp .env.example .env
+fi
+
 # 1. Comprobar herramientas requeridas
 COMMANDS=("docker" "kind" "kubectl")
 
