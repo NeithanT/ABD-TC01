@@ -32,6 +32,18 @@ spec:
           ports:
             - containerPort: 3000
               name: backend-port
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: backend-port
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: backend-port
+            initialDelaySeconds: 5
+            periodSeconds: 10
           envFrom:
             - configMapRef:
                 name: app-env
