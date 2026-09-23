@@ -40,6 +40,22 @@ describe("requiereToken", () => {
     expect(res.status).toHaveBeenCalledWith(401);
     expect(next).not.toHaveBeenCalled();
   });
+
+  it("responde 401 si el token JWT es inválido o no pasa verificación", async () => {
+    process.env.KEYCLOAK_INTERNAL_URL = "http://localhost:8080";
+    process.env.REALM_NAME = "Sistema_Estrellas";
+    process.env.KEYCLOAK_ISSUER = "http://localhost:8080/realms/Sistema_Estrellas";
+
+    const req: any = { headers: { authorization: "Bearer token_falso_invalido" } };
+    const res = resFalso();
+    const next = vi.fn();
+
+    await requiereToken(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({ error: "token inválido o expirado" });
+    expect(next).not.toHaveBeenCalled();
+  });
 });
 
 //Pruebas para la funcion requiereRol

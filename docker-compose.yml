@@ -63,6 +63,7 @@ services:
       - ./.env:/app/.env
       - ./backend/server.ts:/app/server.ts
       - ./backend/dtos.ts:/app/dtos.ts
+      - ./backend/tests/:/app/tests/
     networks:
       - private_net
       - public_net
