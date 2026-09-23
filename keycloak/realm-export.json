@@ -83,6 +83,41 @@
         "organization",
         "microprofile-jwt"
       ]
+    },
+    {
+      "clientId": "${KEYCLOAK_TEST_CLIENT_ID}",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "bearerOnly": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "consentRequired": false,
+      "fullScopeAllowed": true,
+      "defaultClientScopes": [
+        "profile"
+      ],
+      "optionalClientScopes": [
+        "roles"
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "test_con_rol",
+      "enabled": true,
+      "groups": [
+        "/usuarios-estrellas"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${KEYCLOAK_TEST_PASSWORD}",
+          "temporary": false
+        }
+      ]
     }
   ],
   "components": {

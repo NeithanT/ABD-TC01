@@ -32,6 +32,10 @@ services:
       KEYCLOAK_INTERNAL_URL: http://keycloak:${KEYCLOAK_INTERNAL_PORT}
       KEYCLOAK_ISSUER: ${BASE_URI}:${KEYCLOAK_PORT}/realms/${REALM_NAME}
 
+      #Esto es para la prueba de integracion
+      KEYCLOAK_TEST_CLIENT_ID: ${KEYCLOAK_TEST_CLIENT_ID}
+      KEYCLOAK_TEST_PASSWORD: ${KEYCLOAK_TEST_PASSWORD} 
+
       FRONTEND_ORIGIN: ${BASE_URI}:${REACT_PORT}
 
       POSTGRES_USER: ${POSTGRES_USER}
@@ -100,6 +104,10 @@ services:
       REALM_NAME: ${REALM_NAME}
       CLIENT_ID: ${CLIENT_ID}
       BASE_URL: ${BASE_URI}:${REACT_PORT}
+      
+      #Pruebas de integracion
+      KEYCLOAK_TEST_CLIENT_ID: ${KEYCLOAK_TEST_CLIENT_ID}
+      KEYCLOAK_TEST_PASSWORD: ${KEYCLOAK_TEST_PASSWORD}
     ports:
       - "${KEYCLOAK_PORT}:${KEYCLOAK_INTERNAL_PORT}"  #todo puerto con variable de entorno
 
