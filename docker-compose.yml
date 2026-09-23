@@ -23,6 +23,7 @@ services:
     networks:
       - public_net
 
+
   backend:
     build:
       context: ./backend/
@@ -33,6 +34,8 @@ services:
       KEYCLOAK_INTERNAL_URL: http://keycloak:${KEYCLOAK_INTERNAL_PORT}
       KEYCLOAK_ISSUER: ${BASE_URI}:${KEYCLOAK_PORT}/realms/${REALM_NAME}
 
+      BACKEND_INTERNAL_PORT: ${BACKEND_INTERNAL_PORT}
+      
       FRONTEND_ORIGIN: ${BASE_URI}:${REACT_PORT}
 
       POSTGRES_USER: ${POSTGRES_USER}
