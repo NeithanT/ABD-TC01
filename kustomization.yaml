@@ -5,7 +5,6 @@ resources:
   - ./k8s/base/frontend/service.yaml
   - ./k8s/base/keycloak/deployment.yaml
   - ./k8s/base/keycloak/service.yaml
-  - ./k8s/base/keycloak/pvc.yaml
   - ./k8s/base/backend/deployment.yaml
   - ./k8s/base/backend/service.yaml
   - ./k8s/base/database/deployment.yaml
