@@ -51,6 +51,10 @@ spec:
               value: $(REALM_NAME)
             - name: CLIENT_ID
               value: $(CLIENT_ID)
+            - name: KEYCLOAK_TEST_CLIENT_ID
+              value: $(KEYCLOAK_TEST_CLIENT_ID)
+            - name: KEYCLOAK_TEST_PASSWORD
+              value: $(KEYCLOAK_TEST_PASSWORD)
             - name: BASE_URL
               value: $(BASE_URI):$(REACT_PORT)
           args: ["start-dev", "--import-realm"]
