@@ -42,7 +42,6 @@ docker compose exec -T backend \
   node tests/integration/persistence.integration.ts verificar
 
 echo "== Apagando Docker Compose =="
-docker compose down
 
 # Si el script llego hasta aqui, ninguno de los comandos anteriores fallo
 echo "== TODAS LAS PRUEBAS PASARON =="
